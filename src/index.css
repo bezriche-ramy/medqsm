@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: theme("colors.blue.600");
+  --color-primary-hover: theme("colors.blue.700");
+  --color-secondary: theme("colors.slate.600");
+  --color-success: theme("colors.green.500");
+  --color-danger: theme("colors.red.500");
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+}
