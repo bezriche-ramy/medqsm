@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CheckCircle, CheckSquare, ChevronLeft, ChevronRight, Clock, Square } from 'lucide-react';
+import { CheckCircle, CheckSquare, ChevronLeft, ChevronRight, Clock, Square, Menu, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '../components/ui/Button';
 import useExamStore from '../store/useExamStore';
@@ -32,6 +32,7 @@ export default function Session() {
   } = useExamStore();
 
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!activeSession) {
@@ -96,12 +97,31 @@ export default function Session() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-100 overflow-hidden">
-      <aside className="w-80 bg-slate-900 text-slate-200 flex flex-col shadow-2xl relative z-10 shrink-0">
+    <div className="flex h-screen bg-slate-100 overflow-hidden relative">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside 
+        className={clsx(
+          "w-80 h-full bg-slate-900 text-slate-200 flex flex-col shadow-2xl z-50 shrink-0 fixed top-0 left-0 lg:relative transition-transform duration-300 ease-in-out",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
         <div className="p-6 border-b border-slate-800 bg-slate-950/80">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-bold">Session active</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-bold">Session active</p>
+                <button className="lg:hidden text-slate-400 p-1" onClick={() => setIsSidebarOpen(false)}>
+                  <X size={20} />
+                </button>
+              </div>
               <h2 className="font-bold text-white text-lg tracking-tight mt-2">Bloc cardio</h2>
             </div>
             <div
@@ -133,7 +153,10 @@ export default function Session() {
                 <button
                   key={question.id}
                   type="button"
-                  onClick={() => goToQuestion(index)}
+                  onClick={() => {
+                    goToQuestion(index);
+                    setIsSidebarOpen(false);
+                  }}
                   className={clsx(
                     'h-10 rounded-lg text-sm font-semibold flex items-center justify-center transition-all',
                     isActive
@@ -159,33 +182,41 @@ export default function Session() {
       </aside>
 
       <div className="flex-1 flex flex-col h-full bg-white relative">
-        <div className="h-16 flex items-center justify-between px-8 border-b border-slate-200 bg-white absolute top-0 w-full z-10">
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] font-bold text-slate-500">Question en cours</p>
-            <h2 className="font-semibold text-slate-800 text-lg mt-1">
-              Question {currentQuestionIndex + 1} sur {questions.length}
-            </h2>
+        <div className="h-16 flex items-center justify-between px-4 sm:px-8 border-b border-slate-200 bg-white absolute top-0 w-full z-10 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button 
+              className="lg:hidden p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <div>
+              <p className="text-[10px] sm:text-xs uppercase tracking-[0.18em] font-bold text-slate-500">Question en cours</p>
+              <h2 className="font-semibold text-slate-800 text-sm sm:text-lg mt-1 line-clamp-1">
+                Question {currentQuestionIndex + 1} <span className="hidden sm:inline">sur {questions.length}</span>
+              </h2>
+            </div>
           </div>
 
-          <div className="flex gap-2">
-            <span className="px-3 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-semibold">
+          <div className="flex gap-2 shrink-0 ml-2">
+            <span className="px-2 py-1.5 sm:px-3 sm:py-2 rounded-full bg-slate-100 text-slate-700 text-[10px] sm:text-sm font-semibold max-w-[100px] sm:max-w-[200px] truncate">
               {currentQuestion.chapter}
             </span>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-8 py-24 bg-slate-50">
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-10">
-            <div className="flex flex-wrap items-center gap-3 mb-6">
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full uppercase tracking-wide">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-24 sm:py-24 bg-slate-50 pb-28">
+          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-10">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6">
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-[10px] sm:text-xs font-bold rounded-full uppercase tracking-wide">
                 {currentQuestion.topic}
               </span>
-              <span className="px-3 py-1 bg-rose-100 text-rose-800 text-xs font-bold rounded-full uppercase tracking-wide">
+              <span className="px-2 py-1 bg-rose-100 text-rose-800 text-[10px] sm:text-xs font-bold rounded-full uppercase tracking-wide">
                 {currentQuestion.difficulty}
               </span>
             </div>
 
-            <p className="text-lg leading-relaxed text-slate-900 font-medium mb-8">{currentQuestion.questionText}</p>
+            <p className="text-base sm:text-lg leading-relaxed text-slate-900 font-medium mb-6 sm:mb-8">{currentQuestion.questionText}</p>
 
             {isMultiSelect && (
               <p className="text-sm font-semibold text-blue-700 mb-4 bg-blue-50 p-3 rounded-xl border border-blue-100 italic">
@@ -203,21 +234,21 @@ export default function Session() {
                     type="button"
                     onClick={() => toggleAnswer(currentQuestion.id, option.id)}
                     className={clsx(
-                      'w-full flex items-center p-5 rounded-xl border text-left transition-all',
+                      'w-full flex items-center p-4 sm:p-5 rounded-xl border text-left transition-all',
                       isSelected
                         ? 'bg-blue-50 border-blue-600 ring-1 ring-blue-600 shadow-sm'
                         : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700',
                     )}
                   >
                     <div className="mr-5 shrink-0 flex items-center justify-center">
-                      <div className={clsx('flex items-center gap-3', isSelected ? 'text-blue-700' : 'text-slate-400')}>
-                        <span className="font-bold text-lg w-8 h-8 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200">
+                      <div className={clsx('flex items-center gap-2 sm:gap-3', isSelected ? 'text-blue-700' : 'text-slate-400')}>
+                        <span className="font-bold text-base sm:text-lg w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200">
                           {option.id}
                         </span>
-                        {isSelected ? <CheckSquare size={22} className="ml-2" /> : <Square size={22} className="ml-2" />}
+                        {isSelected ? <CheckSquare size={20} className="ml-1 sm:ml-2 sm:w-[22px] sm:h-[22px]" /> : <Square size={20} className="ml-1 sm:ml-2 sm:w-[22px] sm:h-[22px]" />}
                       </div>
                     </div>
-                    <span className={clsx('text-base leading-snug', isSelected ? 'text-blue-900 font-medium' : 'text-slate-700')}>
+                    <span className={clsx('text-sm sm:text-base leading-snug', isSelected ? 'text-blue-900 font-medium' : 'text-slate-700')}>
                       {option.text}
                     </span>
                   </button>
@@ -227,29 +258,33 @@ export default function Session() {
           </div>
         </div>
 
-        <div className="h-20 border-t border-slate-200 bg-white flex items-center justify-between px-8 absolute bottom-0 w-full z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className="h-20 border-t border-slate-200 bg-white flex items-center justify-between px-4 sm:px-8 absolute bottom-0 w-full z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
           <Button
             variant="outline"
             size="lg"
             onClick={goToPrevQuestion}
             disabled={currentQuestionIndex === 0}
-            className="w-40 font-semibold shadow-sm"
+            className="w-32 sm:w-40 font-semibold shadow-sm sm:px-4 px-2"
           >
-            <ChevronLeft size={20} className="mr-1" />
-            Précédente
+            <ChevronLeft size={20} className="mr-1 hidden sm:block" />
+            <ChevronLeft size={18} className="sm:hidden" />
+            <span className="hidden sm:inline">Précédente</span>
+            <span className="sm:hidden text-sm">Préc.</span>
           </Button>
 
           <Button
             size="lg"
             onClick={currentQuestionIndex === questions.length - 1 ? handleSubmit : goToNextQuestion}
-            className="w-40 font-semibold shadow-sm text-base"
+            className="w-32 sm:w-40 font-semibold shadow-sm text-base sm:px-4 px-2"
           >
             {currentQuestionIndex === questions.length - 1 ? (
               'Terminer'
             ) : (
               <>
-                Suivante
-                <ChevronRight size={20} className="ml-1" />
+                <span className="hidden sm:inline">Suivante</span>
+                <span className="sm:hidden text-sm">Suiv.</span>
+                <ChevronRight size={20} className="ml-1 hidden sm:block" />
+                <ChevronRight size={18} className="sm:hidden" />
               </>
             )}
           </Button>

@@ -215,6 +215,11 @@ const useExamStore = create((set, get) => ({
     saveActiveSession(null);
     set({ activeSession: null });
   },
+
+  clearHistory: () => {
+    saveSessionHistory([]);
+    set({ sessionHistory: [], lastCompletedSession: null });
+  },
 }));
 
 export default useExamStore;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, CheckCircle2, Clock3, Layers3, PlayCircle, Trophy } from 'lucide-react';
+import { Activity, CheckCircle2, Clock3, Layers3, PlayCircle, Trophy, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import useExamStore from '../store/useExamStore';
@@ -26,7 +26,7 @@ function StatCard({ icon: Icon, label, value, caption, tone }) {
 }
 
 export default function Dashboard() {
-  const { sessionHistory, lastCompletedSession } = useExamStore();
+  const { sessionHistory, lastCompletedSession, clearHistory } = useExamStore();
   const stats = calculateDashboardStats(sessionHistory);
 
   return (
@@ -37,12 +37,28 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight mt-3">Suivi réel de vos sessions cardio</h1>
           <p className="text-slate-600 mt-2">Toutes les statistiques ci-dessous viennent des tests réellement terminés sur cet appareil.</p>
         </div>
-        <Link to="/setup-session">
-          <Button className="gap-2">
-            <PlayCircle className="w-5 h-5" />
-            Créer un nouveau test
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3 mt-5 lg:mt-0">
+          {sessionHistory.length > 0 && (
+            <Button 
+              variant="danger" 
+              className="gap-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200" 
+              onClick={() => {
+                if(window.confirm("Voulez-vous vraiment supprimer tout votre historique ? Cette action est irréversible.")) {
+                  clearHistory();
+                }
+              }}
+            >
+              <Trash2 className="w-5 h-5" />
+              <span className="hidden sm:inline">Effacer l'historique</span>
+            </Button>
+          )}
+          <Link to="/setup-session">
+            <Button className="gap-2">
+              <PlayCircle className="w-5 h-5" />
+              Nouveau test
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
